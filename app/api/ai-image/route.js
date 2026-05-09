@@ -1,5 +1,8 @@
-// app/api/ai-image/route.js — Image Proxy (CORS fix)
+// app/api/ai-image/route.js — Image Proxy (Vercel compatible)
 import { NextResponse } from 'next/server';
+
+// THIS LINE FIXES THE VERCEL ERROR
+export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
@@ -11,9 +14,7 @@ export async function GET(request) {
       return new NextResponse('Missing prompt', { status: 400 });
     }
 
-    // Fetch image from Pollinations server-side (no CORS!)
     const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${seed}`;
-
     console.log('🔄 Proxying image:', imageUrl);
 
     const imageResponse = await fetch(imageUrl, {
@@ -29,7 +30,6 @@ export async function GET(request) {
 
     const imageBuffer = await imageResponse.arrayBuffer();
 
-    // Return image with CORS-friendly headers
     return new NextResponse(imageBuffer, {
       status: 200,
       headers: {
